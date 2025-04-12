@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <!-- 모바일 최적화를 위한 meta 태그 -->
+  <!-- 모바일 최적화 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Homerlex-Next innovation of Notepads.</title>
   <!-- 파비콘 -->
@@ -11,13 +11,15 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   <!-- Material Icons -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!-- PeerJS (WebRTC 신호 처리용) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.3.2/peerjs.min.js"></script>
   <style>
     :root {
-      --copilot-primary: #0078D4; /* 단색 파란색 */
+      --copilot-primary: #0078D4;
       --copilot-on-primary: #ffffff;
       --copilot-surface: #ffffff;
       --copilot-on-surface: #323130;
-      --copilot-background: #E3F2FD; /* 파스텔톤 배경 */
+      --copilot-background: #E3F2FD;
       --copilot-corner-radius: 32px;
       --copilot-font-family: 'Pretendard', sans-serif;
       --copilot-font-size: 16px;
@@ -40,20 +42,20 @@
       align-items: center;
       margin-bottom: 10px;
     }
-    /* 상단 로고: logo.png로 대체, 크기는 줄여서 최대 너비 100px */
+    /* 로고: 최대 너비 100px */
     .logo {
       max-width: 100px;
       width: 100%;
       height: auto;
     }
-    /* 태그라인: 로고 아래에 간단히 "Homerlex"만 표시 */
+    /* 태그라인: 간단하게 "Homerlex" */
     .tagline {
       font-size: 18px;
       color: var(--copilot-primary);
       margin-top: 5px;
     }
     
-    /* 탭바: 헤더 바로 아래 */
+    /* 탭바 */
     #tabBar {
       display: flex;
       justify-content: center;
@@ -89,7 +91,7 @@
       padding: 8px;
     }
     
-    /* 메모장 컨테이너: 그림자 효과 완전 제거 */
+    /* 메모장 컨테이너 (그림자 제거) */
     #notepadContainer {
       position: relative;
       width: 80%;
@@ -104,14 +106,14 @@
       word-wrap: break-word;
       white-space: normal;
     }
-    /* 텍스트 입력 영역의 <p> 태그: 상하 margin 제거 */
+    /* 내부 <p> 태그 상하 마진 제거 */
     .notepad p {
       margin-top: 0;
       margin-bottom: 0;
       line-height: 1.5;
     }
     
-    /* 하단 툴바: 포맷 버튼 및 "텍스트 버튼 적용" 버튼 */
+    /* 하단 툴바 */
     #toolbar {
       display: flex;
       justify-content: center;
@@ -157,10 +159,10 @@
       color: var(--copilot-primary);
     }
     
-    /* 변환 후 생성된 텍스트 버튼 (버튼 기능 재설계, 줄 양쪽 공백 제거) */
+    /* 텍스트 버튼 변환 (양쪽 공백 제거) */
     .highlight-btn {
       display: inline-block;
-      white-space: pre-wrap;    /* 줄바꿈 보존 */
+      white-space: pre-wrap;
       background-color: var(--copilot-primary);
       border: none;
       padding: var(--md3-button-padding);
@@ -170,14 +172,11 @@
       transition: transform 0.1s ease;
       margin: 2px 0;
     }
-    .highlight-btn:hover {
-      /* 그림자 없음 */
-    }
     .highlight-btn:active {
       transform: scale(0.97);
     }
     
-    /* 설명 입력창: input은 항상 흰색 배경, 그림자 제거 */
+    /* 설명 입력창 (그림자 제거) */
     .explanation-box {
       background-color: var(--copilot-surface);
       border-radius: var(--copilot-corner-radius);
@@ -200,7 +199,7 @@
       background-color: #ffffff;
     }
     
-    /* 공유 탭 동기화 영역 (간단 예제) */
+    /* 공유 탭 동기화 영역 (PeerJS 사용) */
     #sharedSyncContainer {
       width: 80%;
       max-width: 800px;
@@ -252,7 +251,7 @@
   </style>
 </head>
 <body>
-  <!-- 헤더 영역: 로고와 태그라인 -->
+  <!-- 헤더: 로고와 태그라인 -->
   <header>
     <img src="logo.png" alt="Homerlex Logo" class="logo">
     <div class="tagline">Homerlex</div>
@@ -278,7 +277,7 @@
     </div>
   </div>
   
-  <!-- 하단 툴바: 포맷 버튼 및 "텍스트 버튼 적용" 버튼 -->
+  <!-- 하단 툴바 -->
   <div id="toolbar">
     <button id="convertBtn" class="md3-button">텍스트 버튼 적용</button>
     <button class="format-btn" onclick="execCmd('bold')">
@@ -304,7 +303,7 @@
     </button>
   </div>
   
-  <!-- 공유 탭 동기화 영역 (오프라인에서도 근접한 기기끼리 동기화 예제) -->
+  <!-- 공유 탭 동기화 영역 (WebRTC PeerJS 사용) -->
   <div id="sharedSyncContainer">
     <h2>공유 탭 동기화</h2>
     <textarea id="sharedContent" placeholder="여기에 공유할 내용을 입력하세요."></textarea>
@@ -320,13 +319,11 @@
         return v.toString(16);
       });
     }
-    // 그룹 ID (오프라인 동기화를 위한 간단 시뮬레이션)
     let groupID = localStorage.getItem('groupID');
     if (!groupID) {
       groupID = prompt("동기화할 그룹 ID를 입력하세요 (예: room1):", "room1") || "room1";
       localStorage.setItem('groupID', groupID);
     }
-    // 고유 시드: 그룹ID와 UUID 결합
     let deviceSeed = localStorage.getItem('deviceSeed');
     if (!deviceSeed) {
       deviceSeed = groupID + "-" + generateUUID();
@@ -334,29 +331,78 @@
     }
     console.log("Device Seed:", deviceSeed, "Group:", groupID);
     
-    /* ── 2. BroadcastChannel을 이용한 간단 공유동기화 ── */
-    const syncChannel = new BroadcastChannel("sharedTabs");
-    syncChannel.onmessage = function(event) {
-      const msg = event.data;
-      // 동일 그룹일 때만 동기화 (자기 자신의 메시지는 무시)
-      if (msg.group === groupID && msg.deviceSeed !== deviceSeed) {
-        document.getElementById("sharedContent").value = msg.content;
-        console.log("동기화 받음:", msg);
-      }
-    };
+    /* ── 2. PeerJS를 이용한 기기간 동기화 ── */
+    // 간단 예제에서는 사용자가 이 기기를 호스트로 사용할지 선택합니다.
+    var isHost = confirm("이 기기를 호스트로 만드시겠습니까? (예: OK, 아니면 취소)");
+    var hostId = groupID + "-host"; // 그룹 내의 고정 호스트 ID
+    // 클라이언트의 Peer ID는 groupID와 deviceSeed의 일부를 사용하여 생성
+    var peerId = isHost ? hostId : groupID + "-" + deviceSeed.split("-").pop();
     
-    document.getElementById("syncButton").addEventListener("click", function() {
-      const content = document.getElementById("sharedContent").value;
-      // 메시지 전송: 그룹, 기기 시드, 공유 내용
-      syncChannel.postMessage({
-        group: groupID,
-        deviceSeed: deviceSeed,
-        content: content
-      });
-      console.log("동기화 전송:", { group: groupID, deviceSeed: deviceSeed, content: content });
+    // Peer 객체 생성 (기본 PeerJS 서버 사용)
+    var myPeer = new Peer(peerId);
+    
+    // 모든 연결을 저장할 배열 (호스트 전용)
+    var connections = [];
+    var hostConn = null; // 클라이언트인 경우 host와의 연결
+    
+    myPeer.on('open', function(id) {
+      console.log("PeerJS 연결됨. 내 ID:", id);
+      
+      if (isHost) {
+        // 호스트인 경우, 다른 기기가 접속할 때마다 연결을 처리
+        myPeer.on('connection', function(conn) {
+          console.log("클라이언트 접속:", conn.peer);
+          connections.push(conn);
+          conn.on('data', function(data) {
+            // 다른 클라이언트로부터 데이터 수신 시 호스트는 자신의 공유 내용을 업데이트하고 브로드캐스트
+            updateSharedContentLocal(data);
+            broadcastSharedData(data, conn);
+          });
+        });
+      } else {
+        // 클라이언트인 경우, 지정된 호스트에 연결
+        hostConn = myPeer.connect(hostId);
+        hostConn.on('open', function() {
+          console.log("호스트와 연결됨:", hostId);
+          hostConn.on('data', function(data) {
+            updateSharedContentLocal(data);
+          });
+        });
+      }
     });
     
-    /* ── 기존 Notepad 기능 ── */
+    // 공유 데이터를 브로드캐스트하는 함수 (호스트 전용)
+    function broadcastSharedData(data, sender) {
+      connections.forEach(function(conn) {
+        if (conn !== sender) {
+          conn.send(data);
+        }
+      });
+    }
+    
+    // 공유 탭 영역 업데이트 (모든 기기에서 동일하게 적용)
+    function updateSharedContentLocal(data) {
+      document.getElementById("sharedContent").value = data.content;
+    }
+    
+    // 동기화 버튼 이벤트: 공유 탭의 내용을 보내고, 호스트는 브로드캐스트
+    document.getElementById("syncButton").addEventListener("click", function() {
+      var content = document.getElementById("sharedContent").value;
+      var data = { content: content };
+      if (isHost) {
+        updateSharedContentLocal(data);
+        broadcastSharedData(data);
+      } else {
+        if (hostConn && hostConn.open) {
+          hostConn.send(data);
+        } else {
+          alert("호스트와 아직 연결되지 않았습니다.");
+        }
+      }
+      console.log("동기화 전송:", data);
+    });
+    
+    /* ── 3. 기존 Notepad 기능 (탭, 포맷 버튼, 변환 버튼 등) ── */
     let activeTab = "1";
     const notepad = document.getElementById('notepad');
     
@@ -388,6 +434,7 @@
           const btn = document.createElement('button');
           btn.className = 'highlight-btn';
           btn.textContent = trimmedLine;
+          // 고유 ID 생성
           btn.dataset.explanationId = Math.random().toString(36).substr(2, 9);
           fragment.appendChild(btn);
           fragment.appendChild(document.createElement('br'));
